@@ -19,17 +19,17 @@
 
     <link rel="stylesheet" href="styles.css">
 
-    <!-- Spline Viewer - loaded once in head for all browsers -->
-    <script type="module" src="https://cdn.jsdelivr.net/npm/@splinetool/viewer@1.12.51/build/spline-viewer.js"
-        crossorigin="anonymous"></script>
+    <!-- Spline Viewer - preload hint for faster loading -->
+    <link rel="modulepreload" href="https://unpkg.com/@splinetool/viewer@1.12.51/build/spline-viewer.js"
+        crossorigin="anonymous">
 </head>
 
 
 <body>
     <!-- Preloader -->
     <div id="preloader">
-        <spline-viewer url="https://prod.spline.design/jmxuvt8qvFzpZSBd/scene.splinecode"
-            loading="lazy"></spline-viewer>
+        <script type="module" src="https://unpkg.com/@splinetool/viewer@1.12.51/build/spline-viewer.js"></script>
+        <spline-viewer url="https://prod.spline.design/jmxuvt8qvFzpZSBd/scene.splinecode"></spline-viewer>
         <div class="loader-text">Loading Experience...</div>
     </div>
 
@@ -927,8 +927,7 @@
     <div class="liquid-modal-overlay" id="contactModal">
         <!-- Spline 3D Background -->
         <div class="modal-spline-bg">
-            <spline-viewer url="https://prod.spline.design/EVLUzokeNy00L6JI/scene.splinecode"
-                loading="lazy"></spline-viewer>
+            <spline-viewer url="https://prod.spline.design/EVLUzokeNy00L6JI/scene.splinecode"></spline-viewer>
             <div class="spline-watermark-mask"></div>
         </div>
 
