@@ -590,6 +590,14 @@ button {
     mix-blend-mode: overlay;
 }
 
+/* Hide the ::before ghost text overlay when JS has split text into wiggle-char spans.
+   The ::before uses content:attr(data-text) which creates a duplicate transparent
+   text layer in Chrome/Edge that makes the gradient invisible. */
+.gradient-text:has(.wiggle-char)::before,
+.gradient-text.wiggle-active::before {
+    display: none !important;
+}
+
 /* Wiggle Animation for Digital Dreams */
 @keyframes text-wiggle {
 
@@ -2909,6 +2917,29 @@ button {
     transform-origin: center bottom;
 }
 
+/* Fix for Chrome/Edge/Safari: -webkit-background-clip: text does NOT cascade
+   to child <span> elements in Chromium browsers. Each wiggle-char span needs
+   its own gradient + clip so the rainbow text is visible in ALL browsers. */
+.gradient-text .wiggle-char {
+    background: linear-gradient(90deg,
+            #ff4757 0%,
+            #ff7f50 12%,
+            #ffd93d 24%,
+            #2ed573 36%,
+            #1e90ff 48%,
+            #5352ed 60%,
+            #a55eea 72%,
+            #ff6b81 84%,
+            #ff4757 100%);
+    background-size: 200% 100%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+    filter:
+        drop-shadow(0 2px 3px rgba(255, 71, 87, 0.5)) drop-shadow(0 4px 6px rgba(255, 215, 61, 0.4)) drop-shadow(0 6px 10px rgba(30, 144, 255, 0.4)) drop-shadow(0 8px 15px rgba(165, 94, 234, 0.3));
+}
+
 /* Smooth, slower wiggle keyframes */
 @keyframes smooth-wiggle {
 
@@ -2928,4 +2959,36 @@ button {
     75% {
         transform: rotate(-1deg) translateY(1px);
     }
+}
+
+/* ===== Cross-Browser Animation Safety Net =====
+   This ensures hero content ALWAYS becomes visible even if
+   JavaScript or Spline fails to load in Chrome/Edge/Safari.
+   The hero-content and hero-visual will unhide after 5.5s via CSS alone.
+   ===================================================== */
+
+/* When body does NOT have .loaded yet, use a CSS animation to eventually show content */
+body:not(.loaded) .hero-content,
+body:not(.loaded) .hero-visual {
+    /* fallback: auto-reveal after 5.5s via CSS animation if JS body.loaded never fires */
+    animation: force-reveal 0.8s ease 5.5s forwards;
+}
+
+@keyframes force-reveal {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Ensure spline-viewer custom element renders correctly in all browsers */
+spline-viewer {
+    display: block;
+    width: 100%;
+    height: 100%;
 }

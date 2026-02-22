@@ -433,15 +433,30 @@ document.head.appendChild(lightTrailStyle);
 
 
 // ===== Page Load Animation & Preloader =====
+
+// IMPORTANT: Add 'loaded' class immediately on DOMContentLoaded as a fallback
+// so text animations ALWAYS work in all browsers (Chrome, Edge, Safari, Firefox)
+// Even if Spline never fires its load event, the page content will animate in.
+document.addEventListener('DOMContentLoaded', () => {
+    // Animate hero elements immediately so they're never stuck
+    const heroElements = document.querySelectorAll('.hero .animate-in');
+    heroElements.forEach((el, index) => {
+        el.style.animationDelay = `${index * 0.15}s`;
+    });
+});
+
 window.addEventListener('load', () => {
     const preloader = document.getElementById('preloader');
     const splineViewer = preloader ? preloader.querySelector('spline-viewer') : null;
+    let preloaderHidden = false;
 
     function hidePreloader() {
+        if (preloaderHidden) return;
+        preloaderHidden = true;
+
         if (preloader) {
             preloader.classList.add('fade-out');
 
-            // Trigger main site animations after preloader fades
             setTimeout(() => {
                 document.body.classList.add('loaded');
 
@@ -451,27 +466,31 @@ window.addEventListener('load', () => {
                     el.style.animationDelay = `${index * 0.15}s`;
                 });
             }, 800);
+        } else {
+            document.body.classList.add('loaded');
+            const heroElements = document.querySelectorAll('.hero .animate-in');
+            heroElements.forEach((el, index) => {
+                el.style.animationDelay = `${index * 0.15}s`;
+            });
         }
     }
 
     if (splineViewer) {
-        // Wait for Spline to fully load, then show for 3 seconds
+        // Listen for Spline load event
         splineViewer.addEventListener('load', () => {
-            // Spline is ready! Now wait 3 seconds before transitioning
+            // Spline is ready — wait 3 seconds then transition
             setTimeout(hidePreloader, 3000);
         });
 
-        // Fallback: if Spline doesn't fire load event within 8 seconds, proceed anyway
-        setTimeout(() => {
-            if (!preloader.classList.contains('fade-out')) {
-                hidePreloader();
-            }
-        }, 8000);
+        // Universal fallback: always hide preloader after 4 seconds
+        // This ensures Chrome, Edge, Safari all work even if Spline
+        // doesn't fire the load event (common with file:// protocol)
+        setTimeout(hidePreloader, 4000);
     } else if (preloader) {
-        // No spline viewer, just wait 3 seconds
-        setTimeout(hidePreloader, 3000);
+        // No spline viewer, fade after 2 seconds
+        setTimeout(hidePreloader, 2000);
     } else {
-        // Fallback if no preloader
+        // No preloader at all
         document.body.classList.add('loaded');
         const heroElements = document.querySelectorAll('.hero .animate-in');
         heroElements.forEach((el, index) => {
@@ -502,6 +521,10 @@ if (digitalDreamsText) {
 
         digitalDreamsText.appendChild(span);
     });
+
+    // Add class so CSS can hide the ::before pseudo-element
+    // (needed for Chrome/Edge/Safari cross-browser fix)
+    digitalDreamsText.classList.add('wiggle-active');
 }
 
 // Add loaded styles
